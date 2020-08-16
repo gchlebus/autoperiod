@@ -199,7 +199,7 @@ class Autoperiod(object):
 
         angle1 = np.arctan(min_slope1) / (np.pi / 2)
         angle2 = np.arctan(min_slope2) / (np.pi / 2)
-        valid = min_slope1 > min_slope2 and not np.isclose(np.abs(angle1 - angle2), 0, atol=0.01)
+        valid = min_slope1 > 0 and min_slope1 > min_slope2 and not np.isclose(np.abs(angle1 - angle2), 0, atol=0.01)
         if self._min_angle_diff is not None:
             valid &= (np.arctan(min_slope1) - np.arctan(min_slope2)) >= self._min_angle_diff
         window = self.acf[search_min:search_max + 1]
