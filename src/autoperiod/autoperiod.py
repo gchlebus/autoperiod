@@ -5,11 +5,11 @@ import math
 
 import numpy as np
 import scipy
-from astropy.stats import LombScargle
 from scipy.signal import fftconvolve
 from scipy.stats import linregress
 from scipy import integrate
 from six.moves import range
+from astropy.timeseries import LombScargle
 
 
 class Autoperiod(object):
