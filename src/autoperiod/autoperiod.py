@@ -186,7 +186,11 @@ class Autoperiod(object):
 
         angle1 = np.arctan(min_slope1) / (np.pi / 2)
         angle2 = np.arctan(min_slope2) / (np.pi / 2)
+        print(f"angle1={angle1}, angle2={angle2}")
         valid = min_slope1 > min_slope2 and not np.isclose(np.abs(angle1 - angle2), 0, atol=0.01)
+        print(f"valid before {valid}")
+        valid &= (np.arctan(min_slope1) - np.arctan(min_slope2)) >= np.pi /6
+        print(f"valid after {valid}")
         window = self.acf[search_min:search_max + 1]
         peak_idx = np.argmax(window) + search_min
 
