@@ -6,7 +6,7 @@ class Plotter:
     def __init__(self, title="Autoperiod", filename=None, figsize=(20, 20), verbose=False):
         self.title = title
         self.filename = filename
-        self.fig = plt.figure()
+        self.fig = plt.figure(figsize=figsize)
         self.figsize = figsize
         self.verbose = verbose
 
