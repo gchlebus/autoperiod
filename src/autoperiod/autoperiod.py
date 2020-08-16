@@ -13,7 +13,9 @@ from astropy.timeseries import LombScargle
 
 
 class Autoperiod(object):
-    def __init__(self, times, values, plotter=None, threshold_method='mc', mc_iterations=40, confidence_level=.9):
+    def __init__(self, times, values, plotter=None, threshold_method='mc', mc_iterations=40, confidence_level=.9,
+                 min_angle_diff=np.pi / 6, minimum_frequency=None, maximum_frequency=None):
+        self._min_angle_diff = min_angle_diff
 
         # convert absolute times to time differences from start timestamp
         self.times = times - times[0] if times[0] != 0 else times
@@ -27,9 +29,17 @@ class Autoperiod(object):
         self.time_span = self.times[-1] - self.times[0]
         self.time_interval = self.times[1] - self.times[0]
 
+        self.minimum_frequency = minimum_frequency
+        if self.minimum_frequency is None:
+            self.minimum_frequency = 1 / self.time_span
+
+        self.maximum_frequency = maximum_frequency
+        if self.maximum_frequency is None:
+            self.maximum_frequency = 1 / (self.time_interval * 2)
+
         freqs, self.powers = LombScargle(self.times, self.values).autopower(
-            minimum_frequency=1 / self.time_span,
-            maximum_frequency=1 / (self.time_interval * 2),
+            minimum_frequency=self.minimum_frequency,
+            maximum_frequency=self.maximum_frequency,
             normalization='psd'
         )
         self.periods = 1 / freqs
@@ -149,7 +159,10 @@ class Autoperiod(object):
         shuf = np.copy(self.values)
         for _ in range(self._mc_iterations):
             np.random.shuffle(shuf)
-            _, powers = LombScargle(self.times, shuf).autopower(normalization='psd')
+            _, powers = LombScargle(self.times, shuf).autopower(
+                minimum_frequency=self.minimum_frequency,
+                maximum_frequency=self.maximum_frequency,
+                normalization='psd')
             max_powers.append(np.max(powers))
 
         max_powers.sort()
@@ -186,11 +199,9 @@ class Autoperiod(object):
 
         angle1 = np.arctan(min_slope1) / (np.pi / 2)
         angle2 = np.arctan(min_slope2) / (np.pi / 2)
-        print(f"angle1={angle1}, angle2={angle2}")
         valid = min_slope1 > min_slope2 and not np.isclose(np.abs(angle1 - angle2), 0, atol=0.01)
-        print(f"valid before {valid}")
-        valid &= (np.arctan(min_slope1) - np.arctan(min_slope2)) >= np.pi /6
-        print(f"valid after {valid}")
+        if self._min_angle_diff is not None:
+            valid &= (np.arctan(min_slope1) - np.arctan(min_slope2)) >= self._min_angle_diff
         window = self.acf[search_min:search_max + 1]
         peak_idx = np.argmax(window) + search_min
 
