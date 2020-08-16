@@ -166,7 +166,7 @@ class Autoperiod(object):
             max_powers.append(np.max(powers))
 
         max_powers.sort()
-        return max_powers[int(len(max_powers) * .99)] * self._power_norm_factor
+        return max_powers[int(len(max_powers) * self._confidence_level)] * self._power_norm_factor
 
     def _stat_threshold(self):
         return -1 * math.log(1 - math.pow(self._confidence_level, 1 / self.powers.size))
