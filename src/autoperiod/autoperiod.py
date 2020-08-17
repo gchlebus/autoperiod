@@ -14,7 +14,7 @@ from astropy.timeseries import LombScargle
 
 class Autoperiod(object):
     def __init__(self, times, values, plotter=None, threshold_method='mc', mc_iterations=40, confidence_level=.9,
-                 min_angle_diff=np.pi / 6, minimum_frequency=None, maximum_frequency=None):
+                 min_angle_diff=None, minimum_frequency=None, maximum_frequency=None):
         self._min_angle_diff = min_angle_diff
 
         # convert absolute times to time differences from start timestamp
